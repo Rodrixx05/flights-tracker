@@ -1,0 +1,58 @@
+name: Deploy to Google Cloud Run Job
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: europe-west1
+  JOB_NAME: flights-tracker-job
+  IMAGE_NAME: gcr.io/${{ secrets.GCP_PROJECT_ID }}/flights-tracker
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    # Per autenticació via Workload Identity Federation (recomanat per GCP)
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+      
+    steps:
+    - name: Checkout codi
+      uses: actions/checkout@v4
+
+    - name: Authenticate to Google Cloud
+      id: auth
+      uses: google-github-actions/auth@v2
+      with:
+        # Utilitza json credentials (més fàcil per començar) o workload identity
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: Configure Docker Auth
+      run: |-
+        gcloud auth configure-docker gcr.io --quiet
+
+    - name: Build Docker Image
+      run: |-
+        docker build -t $IMAGE_NAME .
+
+    - name: Push Docker Image
+      run: |-
+        docker push $IMAGE_NAME
+
+    - name: Deploy to Cloud Run Job
+      run: |-
+        gcloud run jobs update $JOB_NAME \
+          --image $IMAGE_NAME \
+          --region $REGION \
+          --set-env-vars="IGNAV_API_KEY=${{ secrets.IGNAV_API_KEY }},TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }},TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }},GCS_CONFIG_URI=${{ secrets.GCS_CONFIG_URI }}" \
+          || gcloud run jobs create $JOB_NAME \
+          --image $IMAGE_NAME \
+          --region $REGION \
+          --set-env-vars="IGNAV_API_KEY=${{ secrets.IGNAV_API_KEY }},TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }},TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }},GCS_CONFIG_URI=${{ secrets.GCS_CONFIG_URI }}"

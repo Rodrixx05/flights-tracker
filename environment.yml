@@ -1,0 +1,12 @@
+name: flights-tracker
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+    - requests
+    - pyyaml
+    - python-dotenv
+    - google-cloud-storage

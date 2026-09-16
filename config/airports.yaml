@@ -1,0 +1,21 @@
+regions:
+  # 1. Catalunya
+  Barcelona:
+    name: "Barcelona"
+    airports: ["BCN"]
+
+  # 2. Costa Oest dels Estats Units (Internacionals)
+  Costa_Oest_EUA:
+    name: "Costa Oest dels EUA (Internacionals)"
+    airports:
+      - "LAX"
+      - "SFO"
+      - "SAN"
+      - "LAS"
+
+  # 3. Baixa Califòrnia Sud (Mèxic)
+  Baja_California_Sur:
+    name: "Baixa Califòrnia Sud"
+    airports:
+      - "SJD"
+      - "LAP"
