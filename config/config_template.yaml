@@ -1,0 +1,45 @@
+# ==============================================================================
+# PLANTILLA DE CONFIGURACIÓ DEL RASTREJADOR DE VOLS (FLIGHT TRACKER)
+# ==============================================================================
+# Copia aquest fitxer com a `config.yaml` per fer les teves cerques personals:
+#   cp config/config_template.yaml config/config.yaml
+#
+# O puja el teu fitxer a un bucket de Google Cloud Storage per a producció:
+#   gsutil cp config/config.yaml gs://<el-teu-bucket>/config.yaml
+# ==============================================================================
+
+currency: "EUR"  # Moneda (EUR, USD, etc.)
+market: "ES"     # Mercat / Punt de venda (ES, US, etc.)
+
+routes:
+  # ----------------------------------------------------------------------------
+  # EXEMPLE 1: Cerca amb llista de dates especifiques i límit d'escala
+  # ----------------------------------------------------------------------------
+  - id: "ruta_exemple_1"
+    name: "Ruta Exemple 1 (Dates Concretes)"
+    origin: "BCN"                      # Codi IATA ('BCN') o nom de regió d'airports.yaml
+    destination:                       # Pots posar 1 sol aeroport o una llista
+      - "JFK"
+      - "BOS"
+    dates:                             # Llista de dies a cercar
+      - "2026-10-15"
+      - "2026-10-18"
+    max_stops: 1                       # 0: Directes, 1: Màxim 1 escala, 2: Màxim 2 escales
+    max_layover_minutes: 240           # Temps màxim d'escala permès en minuts (ex: 240 = 4 hores)
+    top_n: 3                           # Quantes opcions més econòmiques mostrar al resum
+
+  # ----------------------------------------------------------------------------
+  # EXEMPLE 2: Cerca amb rang continu de dates i vol directe
+  # ----------------------------------------------------------------------------
+  - id: "ruta_exemple_2"
+    name: "Ruta Exemple 2 (Rang de Dates)"
+    origin:
+      - "MAD"
+      - "BCN"
+    destination: "LHR"
+    date_range:
+      start: "2026-11-01"
+      end: "2026-11-05"
+    max_stops: 0                       # Només vols directes
+    max_layover_minutes: null          # Sense límit d'escala si és vol directe
+    top_n: 5

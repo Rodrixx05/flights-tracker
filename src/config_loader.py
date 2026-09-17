@@ -22,8 +22,16 @@ def load_config():
         except Exception as e:
             print(f"Error descarregant config des de GCS: {e}. Utilitzant fallback local.")
     
-    # Fallback local
-    local_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config", "config.yaml")
+    # Fallback local (primer busca config.yaml, si no existeix usa config_template.yaml)
+    config_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config")
+    local_path = os.path.join(config_dir, "config.yaml")
+    
+    if not os.path.exists(local_path):
+        template_path = os.path.join(config_dir, "config_template.yaml")
+        if os.path.exists(template_path):
+            print("Avís: No s'ha trobat 'config.yaml'. S'utilitzarà 'config_template.yaml'.")
+            return load_yaml(template_path)
+            
     return load_yaml(local_path)
 
 def load_airports():
