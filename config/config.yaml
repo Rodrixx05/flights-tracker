@@ -2,32 +2,13 @@ currency: "EUR"
 market: "ES"
 
 routes:
-  - id: "ruta1_bcn_to_costaoest"
-    name: "Barcelona ➔ Costa Oest EUA"
+  - id: "ruta1_bcn_to_sfo"
+    name: "Barcelona -> San Francisco"
     origin: "Barcelona"
-    destination: "Costa_Oest_EUA"
+    destination: "SFO"
     date_range:
-      start: "2026-10-10"
-      end: "2026-10-15"
+      start: "2027-05-25"
+      end: "2027-05-25"
     max_stops: 1
-    top_n: 5
-
-  - id: "ruta2_costaoest_to_bcs"
-    name: "Costa Oest EUA ➔ Baixa Califòrnia Sud"
-    origin: "Costa_Oest_EUA"
-    destination: "Baja_California_Sur"
-    date_range:
-      start: "2026-10-25"
-      end: "2026-10-30"
-    max_stops: 1
-    top_n: 5
-
-  - id: "ruta3_bcs_to_bcn"
-    name: "Baixa Califòrnia Sud ➔ Barcelona"
-    origin: "Baja_California_Sur"
-    destination: "Barcelona"
-    date_range:
-      start: "2026-11-05"
-      end: "2026-11-10"
-    max_stops: 2
+    max_layover_minutes: 210
     top_n: 5

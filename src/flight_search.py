@@ -12,10 +12,18 @@ def get_dates_in_range(start_str, end_str):
         start += delta
     return dates
 
-def resolve_airports(region_name, airports_config):
-    if region_name in airports_config.get("regions", {}):
-        return airports_config["regions"][region_name].get("airports", [])
-    return [region_name]
+def resolve_airports(target, airports_config):
+    """Permet passar un codi directe ('LAX'), una regió ('Barcelona') o una llista (['LAX', 'SFO'])."""
+    if isinstance(target, list):
+        resolved = []
+        for item in target:
+            resolved.extend(resolve_airports(item, airports_config))
+        return list(dict.fromkeys(resolved))  # Eliminar duplicats mantenint l'ordre
+    
+    if target in airports_config.get("regions", {}):
+        return airports_config["regions"][target].get("airports", [])
+    
+    return [target]
 
 def search_route_combinations(route_config, airports_config, market="ES"):
     origin_region = route_config.get("origin")
@@ -39,21 +47,47 @@ def search_route_combinations(route_config, airports_config, market="ES"):
         for dest in destinations:
             for d in dates:
                 try:
-                    print(f"Cercant: {orig} ➔ {dest} el {d} (Max stops: {max_stops})")
+                    print(f"Cercant: {orig} -> {dest} el {d} (Max stops: {max_stops})")
                     res = search_one_way(orig, dest, d, max_stops, market)
                     if "itineraries" in res:
                         all_itineraries.extend(res["itineraries"])
                     time.sleep(0.3) # Rate limit respect
                 except Exception as e:
                     print(f"Error a la cerca {orig}-{dest}-{d}: {e}")
+    max_layover_minutes = route_config.get("max_layover_minutes")
                     
+    # Filtrar per temps màxim d'escala (si està definit)
+    valid_itineraries = []
+    for it in all_itineraries:
+        if max_layover_minutes is None:
+            valid_itineraries.append(it)
+            continue
+            
+        segments = it.get("outbound", {}).get("segments", [])
+        valid_layover = True
+        for j in range(len(segments) - 1):
+            try:
+                arr_local = segments[j].get('arrival_time_local', '').split('+')[0].replace('Z', '')
+                dep_local = segments[j+1].get('departure_time_local', '').split('+')[0].replace('Z', '')
+                arr_dt = datetime.datetime.fromisoformat(arr_local)
+                dep_dt = datetime.datetime.fromisoformat(dep_local)
+                layover_mins = int((dep_dt - arr_dt).total_seconds() / 60)
+                if layover_mins > max_layover_minutes:
+                    valid_layover = False
+                    break
+            except:
+                pass
+        
+        if valid_layover:
+            valid_itineraries.append(it)
+
     # Ordenar per preu i agafar el Top N
-    all_itineraries.sort(key=lambda x: x.get("price", {}).get("amount", 999999))
+    valid_itineraries.sort(key=lambda x: x.get("price", {}).get("amount", 999999))
     
     # Deduplicar per ID o característiques similars per evitar redundància exacta
     seen_ids = set()
     top_itineraries = []
-    for it in all_itineraries:
+    for it in valid_itineraries:
         ignav_id = it.get("ignav_id")
         if ignav_id not in seen_ids:
             seen_ids.add(ignav_id)

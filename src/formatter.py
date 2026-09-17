@@ -52,13 +52,23 @@ def generate_telegram_message(route_name, top_itineraries, route_dates, links_di
             arr_time = format_time(seg.get('arrival_time_local', ''))
             carrier = seg.get('operating_carrier_name') or seg.get('marketing_carrier_code')
             
-            msg += f"🛫 {dep_apt} {dep_time} ➔ 🛬 {arr_apt} {arr_time} ({carrier})\n"
+            msg += f"🛫 {dep_apt} {dep_time} -> 🛬 {arr_apt} {arr_time} ({carrier})\n"
             
             # Temps d'escala amb el següent segment
             if j < len(segments) - 1:
                 next_seg = segments[j+1]
-                # Càlcul aproximat d'escala si tenim utc (si no, obviem el detall exacte o usem local per orientar)
-                msg += f"⏳ Escala a {arr_apt}\n"
+                layover_str = ""
+                try:
+                    # S'usa l'hora local (mateix aeroport d'escala = mateixa zona horària)
+                    arr_local = seg.get('arrival_time_local', '').split('+')[0].replace('Z', '')
+                    dep_local = next_seg.get('departure_time_local', '').split('+')[0].replace('Z', '')
+                    arr_dt = datetime.fromisoformat(arr_local)
+                    dep_dt = datetime.fromisoformat(dep_local)
+                    layover_mins = int((dep_dt - arr_dt).total_seconds() / 60)
+                    layover_str = f" de {format_duration(layover_mins)}"
+                except Exception:
+                    pass
+                msg += f"⏳ Escala a {arr_apt}{layover_str}\n"
                 
         total_duration = format_duration(outbound.get("duration_minutes", 0))
         if len(segments) == 1:

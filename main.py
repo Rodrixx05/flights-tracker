@@ -1,5 +1,10 @@
 import os
+import sys
 from dotenv import load_dotenv
+
+# Forçar UTF-8 a Windows per evitar errors d'impressió d'emojis a la consola
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding='utf-8')
 
 # Carregar variables d'entorn des de .env (si existeix) abans de la resta
 load_dotenv()
@@ -54,7 +59,7 @@ def main():
         message = generate_telegram_message(route_name, top_itineraries, dates_display, links_dict)
         
         # 4. Enviar
-        print(message)
+        print("Enviant el missatge a Telegram (s'omet la impressió local per evitar problemes d'emojis a Windows)...")
         send_telegram_message(message)
 
 if __name__ == "__main__":
