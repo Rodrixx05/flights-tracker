@@ -7,9 +7,9 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  REGION: europe-west1
+  REGION: us-east1
   JOB_NAME: flights-tracker-job
-  IMAGE_NAME: gcr.io/${{ secrets.GCP_PROJECT_ID }}/flights-tracker
+  IMAGE_NAME: us-east1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/flight-tracker-repo/flights-tracker:latest
 
 jobs:
   deploy:
@@ -37,7 +37,7 @@ jobs:
 
     - name: Configure Docker Auth
       run: |-
-        gcloud auth configure-docker gcr.io --quiet
+        gcloud auth configure-docker us-east1-docker.pkg.dev --quiet
 
     - name: Build Docker Image
       run: |-
