@@ -4,7 +4,7 @@ import requests
 IGNAV_BASE_URL = "https://ignav.com/api"
 
 def get_headers():
-    api_key = os.getenv("IGNAV_API_KEY")
+    api_key = os.getenv("IGNAV_API_KEY", "").strip("\"' \t\r\n")
     if not api_key:
         raise ValueError("L'entorn IGNAV_API_KEY no està definit.")
     return {

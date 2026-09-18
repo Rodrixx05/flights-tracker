@@ -2,8 +2,8 @@ import os
 import requests
 
 def send_telegram_message(text):
-    token = os.getenv("TELEGRAM_BOT_TOKEN")
-    chat_id = os.getenv("TELEGRAM_CHAT_ID")
+    token = os.getenv("TELEGRAM_BOT_TOKEN", "").strip("\"' \t\r\n")
+    chat_id = os.getenv("TELEGRAM_CHAT_ID", "").strip("\"' \t\r\n")
     
     if not token or not chat_id:
         print("Avís: TELEGRAM_BOT_TOKEN o TELEGRAM_CHAT_ID no estan definits. Missatge no enviat.")
