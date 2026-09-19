@@ -20,17 +20,8 @@ def resolve_airports(target, airports_config):
             resolved.extend(resolve_airports(item, airports_config))
         return list(dict.fromkeys(resolved))  # Eliminar duplicats mantenint l'ordre
     
-    regions = airports_config.get("regions", {})
-    
-    # 1. Comprovació per clau directa (ex: 'Costa_Oest_EUA', 'Barcelona')
-    if target in regions:
-        return regions[target].get("airports", [])
-        
-    # 2. Comprovació pel nom descriptiu (ex: 'Costa Oest dels EUA (Internacionals)')
-    target_clean = target.strip().lower()
-    for reg_key, reg_val in regions.items():
-        if reg_val.get("name", "").strip().lower() == target_clean:
-            return reg_val.get("airports", [])
+    if target in airports_config.get("regions", {}):
+        return airports_config["regions"][target].get("airports", [])
     
     return [target]
 
